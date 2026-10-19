@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto';
 import {
   CreateContractInputSchema,
   ErrorCodes,
+  type TestCase,
   UpdateContractInputSchema,
   canonicalHash,
 } from '@promptcheck/shared';
@@ -11,6 +12,40 @@ import { db } from '../../db/connection.js';
 import { contractVersions, contracts, projects } from '../../db/schema.js';
 import { authenticateUser } from '../../plugins/auth.plugin.js';
 import { validateJsonSchemaSyntax } from '../../services/schema-validator.service.js';
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+async function resolveProject(projectIdOrSlug: string, ownerId: string) {
+  const isUuid = UUID_REGEX.test(projectIdOrSlug);
+  const [project] = await db
+    .select({ id: projects.id, slug: projects.slug })
+    .from(projects)
+    .where(
+      and(
+        isUuid ? eq(projects.id, projectIdOrSlug) : eq(projects.slug, projectIdOrSlug),
+        eq(projects.ownerId, ownerId)
+      )
+    )
+    .limit(1);
+  return project;
+}
+
+function serializeContract(c: typeof contracts.$inferSelect) {
+  return {
+    id: c.id,
+    project_id: c.projectId,
+    slug: c.slug,
+    prompt_name: c.promptName,
+    description: c.description,
+    json_schema: c.jsonSchema as Record<string, unknown>,
+    test_cases: (c.testCases || []) as unknown as TestCase[],
+    version: c.version,
+    content_hash: c.contentHash,
+    is_active: c.isActive,
+    created_at: c.createdAt.toISOString(),
+    updated_at: c.updatedAt.toISOString(),
+  };
+}
 
 export const contractRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.addHook('preHandler', authenticateUser);
@@ -27,12 +62,7 @@ export const contractRoutes: FastifyPluginAsync = async (fastify) => {
     }
     const { projectId } = request.params;
 
-    // Garante que o projeto pertence ao usuário autenticado
-    const [project] = await db
-      .select({ id: projects.id })
-      .from(projects)
-      .where(and(eq(projects.id, projectId), eq(projects.ownerId, user.id)))
-      .limit(1);
+    const project = await resolveProject(projectId, user.id);
 
     if (!project) {
       return reply.status(404).send({
@@ -43,10 +73,10 @@ export const contractRoutes: FastifyPluginAsync = async (fastify) => {
     const list = await db
       .select()
       .from(contracts)
-      .where(eq(contracts.projectId, projectId))
+      .where(eq(contracts.projectId, project.id))
       .orderBy(contracts.promptName);
 
-    return reply.send({ contracts: list });
+    return reply.send({ contracts: list.map(serializeContract) });
   });
 
   // ---------------------------------------------------------------------------
@@ -61,11 +91,7 @@ export const contractRoutes: FastifyPluginAsync = async (fastify) => {
     }
     const { projectId } = request.params;
 
-    const [project] = await db
-      .select({ id: projects.id })
-      .from(projects)
-      .where(and(eq(projects.id, projectId), eq(projects.ownerId, user.id)))
-      .limit(1);
+    const project = await resolveProject(projectId, user.id);
 
     if (!project) {
       return reply.status(404).send({
@@ -101,7 +127,7 @@ export const contractRoutes: FastifyPluginAsync = async (fastify) => {
     const [existing] = await db
       .select({ id: contracts.id })
       .from(contracts)
-      .where(and(eq(contracts.projectId, projectId), eq(contracts.slug, slug)))
+      .where(and(eq(contracts.projectId, project.id), eq(contracts.slug, slug)))
       .limit(1);
 
     if (existing) {
@@ -126,7 +152,7 @@ export const contractRoutes: FastifyPluginAsync = async (fastify) => {
     const [newContract] = await db
       .insert(contracts)
       .values({
-        projectId,
+        projectId: project.id,
         slug,
         promptName: prompt_name,
         description: description || null,
@@ -153,7 +179,7 @@ export const contractRoutes: FastifyPluginAsync = async (fastify) => {
       createdBy: user.id,
     });
 
-    return reply.status(201).send({ contract: newContract });
+    return reply.status(201).send({ contract: serializeContract(newContract) });
   });
 
   // ---------------------------------------------------------------------------
@@ -169,11 +195,17 @@ export const contractRoutes: FastifyPluginAsync = async (fastify) => {
           .send({ error: { code: ErrorCodes.UNAUTHORIZED, message: 'Não autorizado' } });
       }
       const { projectId, contractId } = request.params;
+      const project = await resolveProject(projectId, user.id);
+      if (!project) {
+        return reply.status(404).send({
+          error: { code: ErrorCodes.PROJECT_NOT_FOUND, message: 'Projeto não encontrado' },
+        });
+      }
 
       const [contract] = await db
         .select()
         .from(contracts)
-        .where(and(eq(contracts.id, contractId), eq(contracts.projectId, projectId)))
+        .where(and(eq(contracts.id, contractId), eq(contracts.projectId, project.id)))
         .limit(1);
 
       if (!contract) {
@@ -182,7 +214,7 @@ export const contractRoutes: FastifyPluginAsync = async (fastify) => {
         });
       }
 
-      return reply.send({ contract });
+      return reply.send({ contract: serializeContract(contract) });
     }
   );
 
@@ -211,10 +243,17 @@ export const contractRoutes: FastifyPluginAsync = async (fastify) => {
         });
       }
 
+      const project = await resolveProject(projectId, user.id);
+      if (!project) {
+        return reply.status(404).send({
+          error: { code: ErrorCodes.PROJECT_NOT_FOUND, message: 'Projeto não encontrado' },
+        });
+      }
+
       const [existing] = await db
         .select()
         .from(contracts)
-        .where(and(eq(contracts.id, contractId), eq(contracts.projectId, projectId)))
+        .where(and(eq(contracts.id, contractId), eq(contracts.projectId, project.id)))
         .limit(1);
 
       if (!existing) {
@@ -284,7 +323,13 @@ export const contractRoutes: FastifyPluginAsync = async (fastify) => {
         });
       }
 
-      return reply.send({ contract: updated });
+      if (!updated) {
+        return reply.status(500).send({
+          error: { code: 'SERVER_ERROR', message: 'Falha ao atualizar contrato' },
+        });
+      }
+
+      return reply.send({ contract: serializeContract(updated) });
     }
   );
 
@@ -312,8 +357,22 @@ export const contractRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.delete<{ Params: { projectId: string; contractId: string } }>(
     '/:contractId',
     async (request, reply) => {
-      const { contractId } = request.params;
-      await db.delete(contracts).where(eq(contracts.id, contractId));
+      const user = request.user;
+      if (!user) {
+        return reply
+          .status(401)
+          .send({ error: { code: ErrorCodes.UNAUTHORIZED, message: 'Não autorizado' } });
+      }
+      const { projectId, contractId } = request.params;
+      const project = await resolveProject(projectId, user.id);
+      if (!project) {
+        return reply.status(404).send({
+          error: { code: ErrorCodes.PROJECT_NOT_FOUND, message: 'Projeto não encontrado' },
+        });
+      }
+      await db
+        .delete(contracts)
+        .where(and(eq(contracts.id, contractId), eq(contracts.projectId, project.id)));
       return reply.send({ success: true });
     }
   );

@@ -132,11 +132,19 @@ export const projectRoutes: FastifyPluginAsync = async (fastify) => {
         .send({ error: { code: ErrorCodes.UNAUTHORIZED, message: 'Não autorizado' } });
     }
     const { projectId } = request.params;
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      projectId
+    );
 
     const [project] = await db
       .select()
       .from(projects)
-      .where(and(eq(projects.id, projectId), eq(projects.ownerId, user.id)))
+      .where(
+        and(
+          isUuid ? eq(projects.id, projectId) : eq(projects.slug, projectId),
+          eq(projects.ownerId, user.id)
+        )
+      )
       .limit(1);
 
     if (!project) {
@@ -183,10 +191,19 @@ export const projectRoutes: FastifyPluginAsync = async (fastify) => {
       });
     }
 
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      projectId
+    );
+
     const [existing] = await db
       .select()
       .from(projects)
-      .where(and(eq(projects.id, projectId), eq(projects.ownerId, user.id)))
+      .where(
+        and(
+          isUuid ? eq(projects.id, projectId) : eq(projects.slug, projectId),
+          eq(projects.ownerId, user.id)
+        )
+      )
       .limit(1);
 
     if (!existing) {
@@ -208,7 +225,7 @@ export const projectRoutes: FastifyPluginAsync = async (fastify) => {
     const [updated] = await db
       .update(projects)
       .set(updates)
-      .where(eq(projects.id, projectId))
+      .where(eq(projects.id, existing.id))
       .returning();
 
     return reply.send({ project: updated });
@@ -227,11 +244,19 @@ export const projectRoutes: FastifyPluginAsync = async (fastify) => {
           .send({ error: { code: ErrorCodes.UNAUTHORIZED, message: 'Não autorizado' } });
       }
       const { projectId } = request.params;
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        projectId
+      );
 
       const [existing] = await db
         .select()
         .from(projects)
-        .where(and(eq(projects.id, projectId), eq(projects.ownerId, user.id)))
+        .where(
+          and(
+            isUuid ? eq(projects.id, projectId) : eq(projects.slug, projectId),
+            eq(projects.ownerId, user.id)
+          )
+        )
         .limit(1);
 
       if (!existing) {
@@ -251,7 +276,7 @@ export const projectRoutes: FastifyPluginAsync = async (fastify) => {
           tokenRotatedAt: new Date(),
           updatedAt: new Date(),
         })
-        .where(eq(projects.id, projectId));
+        .where(eq(projects.id, existing.id));
 
       return reply.send({
         project_token: token, // Exibido APENAS uma única vez

@@ -1,0 +1,115 @@
+{
+  "common": {
+    "appName": "PromptCheck",
+    "by": "por TechTinker",
+    "loading": "Carregando...",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "create": "Criar",
+    "copied": "Copiado!",
+    "copy": "Copiar",
+    "back": "Voltar",
+    "search": "Buscar...",
+    "status": {
+      "pass": "Sucesso",
+      "fail": "Falha",
+      "warning": "Alerta de Drift"
+    }
+  },
+  "nav": {
+    "projects": "Projetos",
+    "contracts": "Contratos",
+    "runs": "Execuções",
+    "compare": "Comparar",
+    "logout": "Sair"
+  },
+  "auth": {
+    "titleLogin": "Entrar no PromptCheck",
+    "titleRegister": "Criar sua conta",
+    "subtitle": "Testes de contrato e detecção de drift para prompts de IA",
+    "email": "E-mail",
+    "password": "Senha",
+    "name": "Nome completo",
+    "loginBtn": "Entrar",
+    "registerBtn": "Criar Conta",
+    "noAccount": "Não tem uma conta? Cadastre-se",
+    "hasAccount": "Já tem uma conta? Entre"
+  },
+  "projects": {
+    "title": "Seus Projetos",
+    "subtitle": "Gerencie contratos de prompts, tokens de execução e baselines de drift",
+    "newProject": "Novo Projeto",
+    "name": "Nome do Projeto",
+    "slug": "Slug do Projeto",
+    "defaultBranch": "Branch Padrão",
+    "driftTolerance": "Tolerância de Drift (p.p.)",
+    "tokenNotice": "Certifique-se de copiar seu Project Token agora. Você não poderá visualizá-lo novamente!",
+    "tokenPrefix": "Prefixo do Token",
+    "rotateToken": "Rotacionar Token",
+    "confirmRotate": "Tem certeza? Rotacionar este token invalidará imediatamente o token anterior.",
+    "noProjects": "Nenhum projeto encontrado. Crie seu primeiro projeto para começar."
+  },
+  "onboarding": {
+    "title": "Guia de Início Rápido",
+    "subtitle": "Comece a testar seus prompts em 3 passos simples",
+    "step1": "1. Inicialize o PromptCheck no seu repositório",
+    "step2": "2. Configure suas Variáveis de Ambiente",
+    "step3": "3. Execute seu primeiro teste de contrato",
+    "step3Desc": "Execute os testes localmente ou no seu pipeline de CI/CD:"
+  },
+  "contracts": {
+    "title": "Contratos de Prompt",
+    "subtitle": "Defina JSON Schemas estruturais e casos de teste sintéticos (Gold Dataset)",
+    "newContract": "Novo Contrato",
+    "slug": "Slug",
+    "promptName": "Nome do Prompt",
+    "description": "Descrição",
+    "version": "Versão",
+    "jsonSchema": "JSON Schema Esperado (Draft 2020-12)",
+    "testCases": "Casos de Teste (Gold Dataset Sintético)",
+    "piiWarning": "Não insira dados reais de clientes ou PII; utilize estritamente dados sintéticos / fixtures.",
+    "addTestCase": "Adicionar Caso de Teste",
+    "caseName": "Nome do Caso",
+    "caseInput": "Variáveis de Entrada (JSON)",
+    "caseAssertions": "Asserções",
+    "noContracts": "Nenhum contrato cadastrado neste projeto."
+  },
+  "runs": {
+    "title": "Execuções de Teste",
+    "subtitle": "Histórico cronológico agrupado por branch, commit e status de drift",
+    "runId": "ID da Run",
+    "branch": "Branch",
+    "commit": "Commit",
+    "author": "Autor",
+    "status": "Status",
+    "passRate": "Taxa de Sucesso",
+    "latency": "Latência Média",
+    "cost": "Custo (USD)",
+    "executedAt": "Executado em",
+    "compare": "Comparar Runs",
+    "noRuns": "Nenhuma execução recebida ainda. Execute promptcheck test na sua CLI para enviar telemetria."
+  },
+  "runDetail": {
+    "title": "Detalhes da Execução",
+    "metrics": "Métricas Principais",
+    "contracts": "Resultados por Contrato",
+    "driftReasons": "Indicadores de Drift",
+    "errors": "Casos com Falha (Diff)",
+    "jsonPath": "JSON Path",
+    "ruleViolated": "Regra Violada",
+    "expectedType": "Tipo Esperado",
+    "receivedType": "Tipo Recebido"
+  },
+  "compare": {
+    "title": "Comparar Execuções",
+    "base": "Run Base",
+    "head": "Run Comparada",
+    "diffMetrics": "Diferencial de Comparação",
+    "passRateDelta": "Variação na Taxa de Sucesso",
+    "latencyDelta": "Variação na Latência",
+    "promptChanged": "Prompt / Modelo Alterado",
+    "fingerprintChanged": "Fingerprint do Sistema Alterado",
+    "versionChanged": "Versão do Contrato Alterada"
+  }
+}

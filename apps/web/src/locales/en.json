@@ -1,0 +1,115 @@
+{
+  "common": {
+    "appName": "PromptCheck",
+    "by": "by TechTinker",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "create": "Create",
+    "copied": "Copied!",
+    "copy": "Copy",
+    "back": "Back",
+    "search": "Search...",
+    "status": {
+      "pass": "Pass",
+      "fail": "Fail",
+      "warning": "Drift Alert"
+    }
+  },
+  "nav": {
+    "projects": "Projects",
+    "contracts": "Contracts",
+    "runs": "Test Runs",
+    "compare": "Compare",
+    "logout": "Log out"
+  },
+  "auth": {
+    "titleLogin": "Sign in to PromptCheck",
+    "titleRegister": "Create your account",
+    "subtitle": "Contract testing and drift detection for AI prompts",
+    "email": "Email address",
+    "password": "Password",
+    "name": "Full name",
+    "loginBtn": "Sign In",
+    "registerBtn": "Create Account",
+    "noAccount": "Don't have an account? Sign up",
+    "hasAccount": "Already have an account? Sign in"
+  },
+  "projects": {
+    "title": "Your Projects",
+    "subtitle": "Manage prompt contracts, execution tokens, and drift baselines",
+    "newProject": "New Project",
+    "name": "Project Name",
+    "slug": "Project Slug",
+    "defaultBranch": "Default Branch",
+    "driftTolerance": "Drift Tolerance (pp)",
+    "tokenNotice": "Make sure to copy your Project Token now. You won't be able to see it again!",
+    "tokenPrefix": "Token Prefix",
+    "rotateToken": "Rotate Token",
+    "confirmRotate": "Are you sure? Rotating this token will immediately invalidate the current one.",
+    "noProjects": "No projects found. Create your first project to get started."
+  },
+  "onboarding": {
+    "title": "Quick Start Guide",
+    "subtitle": "Start testing your prompts in 3 simple steps",
+    "step1": "1. Initialize PromptCheck in your repository",
+    "step2": "2. Configure your Environment Variables",
+    "step3": "3. Run your first contract test",
+    "step3Desc": "Run the tests locally or in your CI/CD pipeline:"
+  },
+  "contracts": {
+    "title": "Prompt Contracts",
+    "subtitle": "Define structural JSON Schemas and synthetic test cases (Gold Dataset)",
+    "newContract": "New Contract",
+    "slug": "Slug",
+    "promptName": "Prompt Name",
+    "description": "Description",
+    "version": "Version",
+    "jsonSchema": "Expected JSON Schema (Draft 2020-12)",
+    "testCases": "Test Cases (Synthetic Gold Dataset)",
+    "piiWarning": "Do not enter real client data or PII; use strictly synthetic data / fixtures.",
+    "addTestCase": "Add Test Case",
+    "caseName": "Case Name",
+    "caseInput": "Input Variables (JSON)",
+    "caseAssertions": "Assertions",
+    "noContracts": "No contracts found for this project."
+  },
+  "runs": {
+    "title": "Test Executions",
+    "subtitle": "History of runs grouped by branch, commit, and drift status",
+    "runId": "Run ID",
+    "branch": "Branch",
+    "commit": "Commit",
+    "author": "Author",
+    "status": "Status",
+    "passRate": "Pass Rate",
+    "latency": "Avg Latency",
+    "cost": "Cost (USD)",
+    "executedAt": "Executed",
+    "compare": "Compare Runs",
+    "noRuns": "No runs received yet. Run promptcheck test from your CLI to send telemetry."
+  },
+  "runDetail": {
+    "title": "Execution Details",
+    "metrics": "Key Metrics",
+    "contracts": "Contract Results",
+    "driftReasons": "Drift Indicators",
+    "errors": "Failed Cases (Diff)",
+    "jsonPath": "JSON Path",
+    "ruleViolated": "Rule Violated",
+    "expectedType": "Expected Type",
+    "receivedType": "Received Type"
+  },
+  "compare": {
+    "title": "Compare Runs",
+    "base": "Base Run",
+    "head": "Head Run",
+    "diffMetrics": "Comparison Diff",
+    "passRateDelta": "Pass Rate Delta",
+    "latencyDelta": "Latency Delta",
+    "promptChanged": "Prompt / Model Changed",
+    "fingerprintChanged": "System Fingerprint Changed",
+    "versionChanged": "Contract Version Changed"
+  }
+}

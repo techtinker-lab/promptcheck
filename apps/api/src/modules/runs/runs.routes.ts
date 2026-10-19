@@ -5,6 +5,23 @@ import { db } from '../../db/connection.js';
 import { contracts, projects, runContractResults, testRuns } from '../../db/schema.js';
 import { authenticateUser } from '../../plugins/auth.plugin.js';
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+async function resolveProject(projectIdOrSlug: string, ownerId: string) {
+  const isUuid = UUID_REGEX.test(projectIdOrSlug);
+  const [project] = await db
+    .select({ id: projects.id, slug: projects.slug })
+    .from(projects)
+    .where(
+      and(
+        isUuid ? eq(projects.id, projectIdOrSlug) : eq(projects.slug, projectIdOrSlug),
+        eq(projects.ownerId, ownerId)
+      )
+    )
+    .limit(1);
+  return project;
+}
+
 export const runsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.addHook('preHandler', authenticateUser);
 
@@ -24,11 +41,7 @@ export const runsRoutes: FastifyPluginAsync = async (fastify) => {
     const { projectId } = request.params;
     const { branch, status, limit = '20', offset = '0' } = request.query;
 
-    const [project] = await db
-      .select({ id: projects.id })
-      .from(projects)
-      .where(and(eq(projects.id, projectId), eq(projects.ownerId, user.id)))
-      .limit(1);
+    const project = await resolveProject(projectId, user.id);
 
     if (!project) {
       return reply.status(404).send({
@@ -36,7 +49,7 @@ export const runsRoutes: FastifyPluginAsync = async (fastify) => {
       });
     }
 
-    const conditions = [eq(testRuns.projectId, projectId)];
+    const conditions = [eq(testRuns.projectId, project.id)];
     if (branch) conditions.push(eq(testRuns.branch, branch));
     if (status) conditions.push(eq(testRuns.status, status));
 
@@ -65,11 +78,7 @@ export const runsRoutes: FastifyPluginAsync = async (fastify) => {
       }
       const { projectId, runId } = request.params;
 
-      const [project] = await db
-        .select({ id: projects.id })
-        .from(projects)
-        .where(and(eq(projects.id, projectId), eq(projects.ownerId, user.id)))
-        .limit(1);
+      const project = await resolveProject(projectId, user.id);
 
       if (!project) {
         return reply.status(404).send({
@@ -80,7 +89,7 @@ export const runsRoutes: FastifyPluginAsync = async (fastify) => {
       const [run] = await db
         .select()
         .from(testRuns)
-        .where(and(eq(testRuns.id, runId), eq(testRuns.projectId, projectId)))
+        .where(and(eq(testRuns.id, runId), eq(testRuns.projectId, project.id)))
         .limit(1);
 
       if (!run) {
@@ -150,16 +159,23 @@ export const runsRoutes: FastifyPluginAsync = async (fastify) => {
       });
     }
 
+    const project = await resolveProject(projectId, user.id);
+    if (!project) {
+      return reply.status(404).send({
+        error: { code: ErrorCodes.PROJECT_NOT_FOUND, message: 'Projeto não encontrado' },
+      });
+    }
+
     const [baseRun] = await db
       .select()
       .from(testRuns)
-      .where(and(eq(testRuns.id, base), eq(testRuns.projectId, projectId)))
+      .where(and(eq(testRuns.id, base), eq(testRuns.projectId, project.id)))
       .limit(1);
 
     const [headRun] = await db
       .select()
       .from(testRuns)
-      .where(and(eq(testRuns.id, head), eq(testRuns.projectId, projectId)))
+      .where(and(eq(testRuns.id, head), eq(testRuns.projectId, project.id)))
       .limit(1);
 
     if (!baseRun || !headRun) {
