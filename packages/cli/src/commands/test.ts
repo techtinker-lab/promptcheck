@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   type CliContractsResponse,
@@ -12,6 +12,7 @@ import { loadConfig } from '../config/loader.js';
 import { collectGitMetadata } from '../git/info.js';
 import { setLocale, t } from '../i18n/index.js';
 import { OpenAIAdapter } from '../providers/openai.js';
+import { generateMarkdownSummary } from '../reporter/markdown.js';
 import { printContractResult, printHeader, printSummary } from '../reporter/terminal.js';
 import { runContract } from '../runner/contract-runner.js';
 
@@ -21,6 +22,7 @@ export interface TestCommandOptions {
   lang?: string;
   only?: string;
   noUpload?: boolean;
+  outputMarkdown?: string;
 }
 
 export async function runTest(options: TestCommandOptions): Promise<void> {
@@ -180,9 +182,10 @@ export async function runTest(options: TestCommandOptions): Promise<void> {
   const passed = printSummary(reports, effectiveFailUnder);
 
   // 7. Envio do relatório de telemetria para o SaaS
-  if (!options.noUpload && reports.length > 0) {
-    const gitMeta = collectGitMetadata();
+  let uploadData: RunReportResponse | undefined;
+  const gitMeta = collectGitMetadata();
 
+  if (!options.noUpload && reports.length > 0) {
     const payload: RunReportPayload = {
       project_slug: config.project,
       branch: gitMeta.branch,
@@ -210,7 +213,7 @@ export async function runTest(options: TestCommandOptions): Promise<void> {
       });
 
       if (uploadRes.ok) {
-        const uploadData = (await uploadRes.json()) as RunReportResponse;
+        uploadData = (await uploadRes.json()) as RunReportResponse;
         console.log(pc.gray(`\n☁ ${t('uploadSuccess')}`));
         console.log(pc.cyan(`  ${uploadData.dashboard_url}\n`));
 
@@ -230,6 +233,33 @@ export async function runTest(options: TestCommandOptions): Promise<void> {
     }
   } else if (options.noUpload) {
     console.log(pc.gray(`ℹ ${t('uploadSkipped')}`));
+  }
+
+  // 8. Geração de Resumo em Markdown (GitHub Step Summary & PR Comment)
+  const markdown = generateMarkdownSummary({
+    projectName: config.project,
+    reports,
+    failUnder: effectiveFailUnder,
+    uploadData,
+    branch: gitMeta.branch,
+    commitSha: gitMeta.commitSha,
+  });
+
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    try {
+      appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${markdown}\n`);
+    } catch {
+      // Ignora erro ao escrever step summary no CI
+    }
+  }
+
+  if (options.outputMarkdown) {
+    try {
+      writeFileSync(resolve(options.outputMarkdown), markdown, 'utf-8');
+      console.log(pc.gray(`📄 Resumo em Markdown gerado em: ${options.outputMarkdown}`));
+    } catch (err) {
+      console.error(pc.yellow(`⚠ Falha ao gravar Markdown: ${(err as Error).message}`));
+    }
   }
 
   if (!passed) {

@@ -51,6 +51,11 @@ export function loadConfig(configPath?: string): LoadedConfig {
 
   const config = parseResult.data;
 
+  // Permite sobrescrever a URL da API via variável de ambiente (ex: desenvolvimento local)
+  if (process.env.PROMPTCHECK_API_URL) {
+    config.api_url = process.env.PROMPTCHECK_API_URL;
+  }
+
   // Validação estrita de HTTPS
   validateApiUrlSecurity(config.api_url);
 

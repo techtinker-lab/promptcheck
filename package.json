@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "pnpm --recursive --filter \"./packages/*\" run build && pnpm --recursive --filter \"./apps/*\" run build",
+    "dev": "pnpm --parallel --filter @promptcheck/api --filter @promptcheck/web dev",
     "dev:api": "pnpm --filter @promptcheck/api dev",
     "dev:web": "pnpm --filter @promptcheck/web dev",
     "typecheck": "pnpm --recursive run typecheck",

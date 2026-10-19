@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-promptcheck}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-promptcheck_secret_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-promptcheck_db}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-promptcheck} -d ${POSTGRES_DB:-promptcheck_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3333
+      HOST: 0.0.0.0
+      DATABASE_URL: postgres://${POSTGRES_USER:-promptcheck}:${POSTGRES_PASSWORD:-promptcheck_secret_2026}@postgres:5432/${POSTGRES_DB:-promptcheck_db}
+      JWT_SECRET: ${JWT_SECRET:-prod_jwt_super_secret_key_minimum_32_characters_long_12345}
+      COOKIE_SECRET: ${COOKIE_SECRET:-prod_cookie_super_secret_key_minimum_32_chars_long_12345}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+    ports:
+      - "3333:3333"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: always
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_prod_data:

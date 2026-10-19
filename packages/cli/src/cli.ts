@@ -30,6 +30,10 @@ program
   .option('--fail-under <number>', 'Limiar percentual mínimo de sucesso para aprovar o CI')
   .option('--only <slugs>', 'Filtra execução para contratos específicos separados por vírgula')
   .option('--no-upload', 'Executa os testes apenas localmente sem enviar telemetria para o SaaS')
+  .option(
+    '--output-markdown <path>',
+    'Caminho para salvar o relatório de resumo em Markdown (ex: para comentários em PRs)'
+  )
   .option('--lang <lang>', 'Idioma das mensagens de saída no terminal (pt ou en)')
   .action(async (options) => {
     try {

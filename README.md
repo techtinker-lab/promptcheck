@@ -98,10 +98,10 @@ docker compose up -d
 
 ### 4. Configurar Variáveis de Ambiente
 
-Copie o arquivo de exemplo na API:
+Copie o arquivo de exemplo para a API:
 
 ```bash
-cp apps/api/.env.example apps/api/.env
+cp .env.example apps/api/.env
 ```
 
 Execute as migrações/push do schema:
@@ -113,8 +113,12 @@ pnpm --filter @promptcheck/api run db:push
 ### 5. Iniciar Serviços em Modo de Desenvolvimento
 
 ```bash
-# Iniciar a API e o Dashboard simultaneamente
+# Iniciar a API e o Dashboard simultaneamente:
 pnpm run dev
+
+# Ou se preferir em terminais separados:
+# Terminal 1: pnpm run dev:api (API Fastify na porta 3333)
+# Terminal 2: pnpm run dev:web (Dashboard Vite na porta 5173)
 ```
 
 - **Dashboard Web:** [http://localhost:5173](http://localhost:5173)
