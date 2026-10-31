@@ -45,7 +45,7 @@ jobs:
         env:
           PROMPTCHECK_TOKEN: \${{ secrets.PROMPTCHECK_TOKEN }}
           OPENAI_API_KEY: \${{ secrets.OPENAI_API_KEY }}
-        run: npx @techtinker/promptcheck test --fail-under 90
+        run: npx promptcheck test --fail-under 90
 `;
 
 /**

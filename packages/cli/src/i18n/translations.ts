@@ -4,7 +4,7 @@ export const translations = {
     initWorkflowCreated: 'Created GitHub Actions workflow in .github/workflows/promptcheck.yml',
     initGitignoreUpdated: 'Added .env to .gitignore',
     initInstructions:
-      'Next steps:\n1. Set PROMPTCHECK_TOKEN in your environment or GitHub Secrets\n2. Set OPENAI_API_KEY in your environment\n3. Run: npx @techtinker/promptcheck test',
+      'Next steps:\n1. Set PROMPTCHECK_TOKEN in your environment or GitHub Secrets\n2. Set OPENAI_API_KEY in your environment\n3. Run: npx promptcheck test',
     configNotFound: 'Configuration file promptcheck.yaml not found. Run "promptcheck init" first.',
     configInvalid: 'Invalid configuration in promptcheck.yaml',
     tokenMissing: 'Environment variable PROMPTCHECK_TOKEN is not set.',
@@ -28,7 +28,7 @@ export const translations = {
     initWorkflowCreated: 'Workflow do GitHub Actions criado em .github/workflows/promptcheck.yml',
     initGitignoreUpdated: '.env adicionado ao .gitignore',
     initInstructions:
-      'Próximos passos:\n1. Defina PROMPTCHECK_TOKEN no seu ambiente ou nos Secrets do GitHub\n2. Defina OPENAI_API_KEY no seu ambiente\n3. Execute: npx @techtinker/promptcheck test',
+      'Próximos passos:\n1. Defina PROMPTCHECK_TOKEN no seu ambiente ou nos Secrets do GitHub\n2. Defina OPENAI_API_KEY no seu ambiente\n3. Execute: npx promptcheck test',
     configNotFound:
       'Arquivo de configuração promptcheck.yaml não encontrado. Execute "promptcheck init" primeiro.',
     configInvalid: 'Configuração inválida no promptcheck.yaml',

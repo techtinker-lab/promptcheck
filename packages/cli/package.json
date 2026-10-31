@@ -1,5 +1,5 @@
 {
-  "name": "@techtinker/promptcheck",
+  "name": "promptcheck",
   "version": "0.2.0",
   "description": "Open Source CLI for LLM Prompt Contract Testing, Live Code Binding (source_file) & Model Drift Detection",
   "license": "MIT",

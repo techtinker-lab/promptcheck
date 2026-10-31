@@ -75,7 +75,7 @@ export function ProjectOnboarding() {
           <code className="text-zinc-200 font-mono">promptcheck.yaml</code>, um prompt de exemplo e
           o workflow do GitHub Actions com detecção programada de drift.
         </p>
-        <CodeBlock code="npx @techtinker/promptcheck init" language="bash" />
+        <CodeBlock code="npx promptcheck scan" language="bash" />
       </Card>
 
       {/* Step 2 */}
@@ -104,7 +104,7 @@ OPENAI_API_KEY=sk-proj-...`}
           <h2 className="text-base font-semibold text-zinc-100">{t('onboarding.step3')}</h2>
         </div>
         <p className="text-xs text-zinc-400 leading-relaxed">{t('onboarding.step3Desc')}</p>
-        <CodeBlock code="npx @techtinker/promptcheck test" language="bash" />
+        <CodeBlock code="npx promptcheck test" language="bash" />
         <p className="text-xs text-zinc-500 italic mt-2">
           Dica: No CI/CD, use flags como{' '}
           <code className="font-mono text-zinc-400">--trigger=ci</code> ou defina o limiar mínimo de

@@ -25,10 +25,10 @@ Dentro do repositório da sua aplicação (Node.js, Next.js, etc.):
 
 ```bash
 # 1. Escaneia o código-fonte da sua aplicação e gera os contratos automaticamente:
-npx @techtinker/promptcheck scan
+npx promptcheck scan
 
 # 2. Roda os testes de contrato lendo os prompts direto do seu código:
-npx @techtinker/promptcheck test
+npx promptcheck test
 ```
 
 > 💡 **Dica:** O `promptcheck` carrega automaticamente variáveis de ambiente do seu `.env.local` ou `.env` (como `OPENAI_API_KEY`).
@@ -123,7 +123,7 @@ promptcheck/
 │   └── web/            # Vite + React + Tailwind CSS (Dashboard Web Dark-Mode)
 ├── packages/
 │   ├── shared/         # Zod schemas, hashes SHA-256 canônicos e detector de segredos
-│   └── cli/            # @techtinker/promptcheck — CLI standalone + Scanner de Código IA
+│   └── cli/            # promptcheck — CLI standalone + Scanner de Código IA
 ├── CONTRIBUTING.md     # Guia de contribuição para a comunidade
 ├── LICENSE             # Licença MIT
 └── docker-compose.yml  # PostgreSQL 16 para self-hosting rápido
