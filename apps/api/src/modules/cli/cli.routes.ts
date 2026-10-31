@@ -11,6 +11,7 @@ import { db } from '../../db/connection.js';
 import { contracts, runContractResults, testRuns } from '../../db/schema.js';
 import { authenticateProjectToken } from '../../plugins/auth.plugin.js';
 import { calculateOverallRunStatus, evaluateContractDrift } from '../../services/drift.service.js';
+import { billingService } from '../billing/billing.service.js';
 
 export const cliRoutes: FastifyPluginAsync = async (fastify) => {
   // Autenticação exclusiva via Project Token (Authorization: Bearer pck_live_...)
@@ -105,6 +106,17 @@ export const cliRoutes: FastifyPluginAsync = async (fastify) => {
           error: {
             code: ErrorCodes.PROJECT_MISMATCH,
             message: `O token fornecido pertence ao projeto "${project.slug}", mas o relatório foi enviado para "${payload.project_slug}"`,
+          },
+        });
+      }
+
+      // 3.5. Verificação de Quota Mensal de Casos de Teste (Billing)
+      const runsQuota = await billingService.checkRunsQuota(project.id);
+      if (!runsQuota.allowed) {
+        return reply.status(403).send({
+          error: {
+            code: 'MONTHLY_QUOTA_EXCEEDED',
+            message: `Limite mensal de execuções de testes do plano atingido (${runsQuota.current}/${runsQuota.max}). Acesse o painel para realizar upgrade do plano.`,
           },
         });
       }

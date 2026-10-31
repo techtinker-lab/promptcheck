@@ -22,6 +22,7 @@
     "contracts": "Contracts",
     "runs": "Test Runs",
     "compare": "Compare",
+    "billing": "Plans & Billing",
     "logout": "Log out"
   },
   "auth": {
@@ -111,5 +112,20 @@
     "promptChanged": "Prompt / Model Changed",
     "fingerprintChanged": "System Fingerprint Changed",
     "versionChanged": "Contract Version Changed"
+  },
+  "billing": {
+    "title": "Plans & Billing",
+    "subtitle": "Manage your subscription, test run quotas, and account limits",
+    "currentPlan": "Your Current Plan",
+    "managePortal": "Manage Billing (Stripe)",
+    "upgradePro": "Upgrade to Pro",
+    "usage": "Monthly Quota Usage",
+    "projectsUsage": "Active Projects",
+    "casesUsage": "Test Cases Executed this Month",
+    "unlimited": "Unlimited",
+    "active": "Active",
+    "periodEnd": "Renews on:",
+    "features": "Included features:",
+    "checkoutLoading": "Redirecting to Stripe Checkout..."
   }
 }

@@ -10,6 +10,7 @@ export * from './schemas/telemetry.js';
 export * from './schemas/cli.js';
 export * from './schemas/project.js';
 export * from './schemas/auth.js';
+export * from './schemas/billing.js';
 
 // Utilities
 export * from './utils/secrets.js';

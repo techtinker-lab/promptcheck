@@ -1,4 +1,4 @@
-import { Globe, LogOut, ShieldCheck } from 'lucide-react';
+import { CreditCard, Globe, LogOut, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { api } from '../../lib/api-client.js';
@@ -77,6 +77,19 @@ export function Header({ user, onLogout, currentProjectSlug }: HeaderProps) {
 
         {/* Right Actions: Lang Switcher, User, Logout */}
         <div className="flex items-center gap-3">
+          <Link
+            to="/billing"
+            className={`flex items-center gap-1.5 text-xs font-mono px-2.5 py-1.5 rounded-md border transition-colors ${
+              location.pathname === '/billing'
+                ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400 font-medium'
+                : 'border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:border-zinc-700'
+            }`}
+            title={t('nav.billing')}
+          >
+            <CreditCard className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{t('nav.billing')}</span>
+          </Link>
+
           <button
             type="button"
             onClick={toggleLanguage}

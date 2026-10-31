@@ -22,6 +22,7 @@
     "contracts": "Contratos",
     "runs": "Execuções",
     "compare": "Comparar",
+    "billing": "Planos & Uso",
     "logout": "Sair"
   },
   "auth": {
@@ -111,5 +112,20 @@
     "promptChanged": "Prompt / Modelo Alterado",
     "fingerprintChanged": "Fingerprint do Sistema Alterado",
     "versionChanged": "Versão do Contrato Alterada"
+  },
+  "billing": {
+    "title": "Planos e Assinatura",
+    "subtitle": "Gerencie seu plano, quotas de execução de testes e limites da conta",
+    "currentPlan": "Seu Plano Atual",
+    "managePortal": "Gerenciar Assinatura (Stripe)",
+    "upgradePro": "Fazer Upgrade para o Pro",
+    "usage": "Uso do Plano no Mês",
+    "projectsUsage": "Projetos Ativos",
+    "casesUsage": "Casos de Teste Executados este Mês",
+    "unlimited": "Ilimitado",
+    "active": "Ativo",
+    "periodEnd": "Renova em:",
+    "features": "Recursos inclusos:",
+    "checkoutLoading": "Redirecionando para o Stripe Checkout..."
   }
 }

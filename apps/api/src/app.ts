@@ -4,6 +4,7 @@ import rateLimit from '@fastify/rate-limit';
 import fastify, { type FastifyError, type FastifyInstance } from 'fastify';
 import { env } from './config/env.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
+import { billingRoutes } from './modules/billing/billing.routes.js';
 import { cliRoutes } from './modules/cli/cli.routes.js';
 import { contractRoutes } from './modules/contracts/contracts.routes.js';
 import { projectRoutes } from './modules/projects/projects.routes.js';
@@ -16,6 +17,17 @@ export function buildApp(): FastifyInstance {
       redact: ['req.headers.authorization', 'req.headers.cookie'],
     },
     bodyLimit: 100 * 1024, // 100 KB padrão por rota
+  });
+
+  // Preserva rawBody para verificação de assinatura em webhooks (ex: Stripe)
+  app.addContentTypeParser('application/json', { parseAs: 'string' }, (req, body, done) => {
+    try {
+      (req as unknown as { rawBody?: string }).rawBody = body as string;
+      const parsed = (body as string).trim().length > 0 ? JSON.parse(body as string) : {};
+      done(null, parsed);
+    } catch (err) {
+      done(err as Error, undefined);
+    }
   });
 
   // 1. Plugins Oficiais Fastify
@@ -61,6 +73,7 @@ export function buildApp(): FastifyInstance {
   app.register(contractRoutes, { prefix: '/api/v1/projects/:projectId/contracts' });
   app.register(runsRoutes, { prefix: '/api/v1/projects/:projectId/runs' });
   app.register(cliRoutes, { prefix: '/api/v1/cli' });
+  app.register(billingRoutes, { prefix: '/api/v1/billing' });
 
   // 4. Tratamento Global de Erros
   app.setErrorHandler((error: FastifyError, request, reply) => {

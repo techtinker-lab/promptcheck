@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from './components/layout/Header.js';
 import { AuthPage } from './features/auth/AuthPage.js';
+import { BillingPage } from './features/billing/BillingPage.js';
 import { ContractsPage } from './features/contracts/ContractsPage.js';
 import { ProjectOnboarding } from './features/projects/ProjectOnboarding.js';
 import { ProjectsListPage } from './features/projects/ProjectsListPage.js';
@@ -94,6 +95,11 @@ export function App() {
           <Route
             path="/projects/:slug/compare"
             element={user ? <CompareRunsPage /> : <Navigate to="/login" replace />}
+          />
+
+          <Route
+            path="/billing"
+            element={user ? <BillingPage /> : <Navigate to="/login" replace />}
           />
 
           <Route path="/" element={<Navigate to={user ? '/projects' : '/login'} replace />} />

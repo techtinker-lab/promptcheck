@@ -178,3 +178,30 @@ export const runContractResults = pgTable('run_contract_results', {
   driftReasons: jsonb('drift_reasons').notNull().default([]),
   caseResults: jsonb('case_results').notNull().default([]),
 });
+
+// -----------------------------------------------------------------------------
+// 8. Subscriptions (Stripe / Billing por Usuário)
+// -----------------------------------------------------------------------------
+export const subscriptions = pgTable(
+  'subscriptions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' })
+      .unique(),
+    stripeCustomerId: varchar('stripe_customer_id', { length: 255 }).unique(),
+    stripeSubscriptionId: varchar('stripe_subscription_id', { length: 255 }).unique(),
+    plan: varchar('plan', { length: 32 }).notNull().default('free'), // 'free' | 'pro' | 'enterprise'
+    status: varchar('status', { length: 32 }).notNull().default('active'), // 'active' | 'canceled' | 'past_due' etc.
+    currentPeriodEnd: timestamp('current_period_end', { withTimezone: true }),
+    cancelAtPeriodEnd: boolean('cancel_at_period_end').notNull().default(false),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex('subscriptions_user_idx').on(table.userId),
+    uniqueIndex('subscriptions_stripe_customer_idx').on(table.stripeCustomerId),
+    uniqueIndex('subscriptions_stripe_sub_idx').on(table.stripeSubscriptionId),
+  ]
+);
