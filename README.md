@@ -1,60 +1,116 @@
-# PromptCheck
+# PromptCheck 🛡️ (Open Source)
 
-> **Contratos de Prompts, Detecção de Regressão & Governança de Drift para Sistemas de IA**  
-> *Desenvolvido pela TechTinker — Design System moderno, Dev-First (estilo Vercel/Linear), TypeScript & Privacy by Design.*
+> **Testes de Contrato para Prompts de IA, Live Code Binding (`source_file`) & Detecção de Drift de Modelos — 100% Open Source (MIT).**
+
+O **PromptCheck** é uma ferramenta Open Source para engenharia de IA que garante que os prompts da sua aplicação nunca quebrem contratos JSON nem sofram degradação silenciosa quando provedores como a OpenAI atualizam seus modelos.
+
+Diferente de ferramentas tradicionais onde você precisa copiar e colar prompts em arquivos separados, o PromptCheck possui **AI Auto-Discovery (`promptcheck scan`)** e **Live Code Binding (`source_file`)**: ele lê os prompts diretamente dos arquivos `.ts`, `.tsx`, `.js` ou `.py` da sua aplicação em tempo real!
 
 ---
 
-## 🎯 Visão Geral
+## ✨ Por que usar o PromptCheck?
 
-O **PromptCheck** é uma plataforma híbrida de testes de contrato e governança contínua para engenharia de prompts e LLMs. Ele permite que times de engenharia, QA e produto garantam que prompts integrados a sistemas de produção nunca quebrem contratos estruturais de dados ou sofram degradação silenciosa por atualizações de modelos de fundação.
+1. **🔍 Auto-Descoberta com IA (`promptcheck scan`)**: Escaneia seu projeto automaticamente, detecta onde você faz chamadas de LLM (`openai`, `@google/genai`, `anthropic`, Vercel AI SDK, etc.) e gera os contratos JSON Schema + casos de teste sintéticos para você.
+2. **🔗 Zero Manutenção Dupla (`source_file`)**: Em vez de duplicar seus prompts em arquivos `.txt`, o contrato aponta para `source_file: ./src/lib/ai/aiService.ts`. Mudou o prompt no código? O teste já valida o prompt novo automaticamente na próxima execução.
+3. **🏠 100% Standalone (Local-First) + Dashboard Self-Hosted Opcional**:
+   - **Modo Standalone (CLI pura)**: Roda 100% localmente e no GitHub Actions sem precisar de banco de dados ou servidor, salvando baseline de drift em `.promptcheck/baseline.json`.
+   - **Modo Control Plane (Docker Self-Hosted)**: Inclui API Fastify + PostgreSQL + Dashboard Web React completo (100% gratuito e sem limites/paywalls) para visualizar histórico de runs, comparar branches e monitorar custos/latência.
+4. **🔒 Privacy by Design (LGPD)**: Nenhum texto de prompt bruto nem resposta da LLM sai da sua máquina. Apenas hashes canônicos (`SHA-256`) e metadados estruturais de validação são registrados.
 
-```mermaid
-flowchart LR
-    subgraph ExecutionPlane["Execution Plane (Repositório do Cliente / CI)"]
-        CLI["@techtinker/promptcheck (CLI)"]
-        PromptFile["src/prompts/*.txt"]
-        OpenAI["Provedor LLM (ex: OpenAI)"]
-        GitMeta["Git & CI Metadata"]
+---
 
-        PromptFile --> CLI
-        CLI <-->|Requisições Diretas| OpenAI
-        GitMeta --> CLI
-    end
+## ⚡ Quickstart em Qualquer Projeto (30 segundos)
 
-    subgraph ControlPlane["Control Plane (PromptCheck SaaS)"]
-        API["Fastify API + Drizzle ORM"]
-        DB[(PostgreSQL)]
-        Web["Dashboard Web (React / Tailwind)"]
+Dentro do repositório da sua aplicação (Node.js, Next.js, etc.):
 
-        API <--> DB
-        Web <--> API
-    end
+```bash
+# 1. Escaneia o código-fonte da sua aplicação e gera os contratos automaticamente:
+npx @techtinker/promptcheck scan
 
-    CLI -->|1. Baixa Contratos & Preços| API
-    CLI -->|2. Envia Telemetria & Metadados| API
+# 2. Roda os testes de contrato lendo os prompts direto do seu código:
+npx @techtinker/promptcheck test
+```
+
+> 💡 **Dica:** O `promptcheck` carrega automaticamente variáveis de ambiente do seu `.env.local` ou `.env` (como `OPENAI_API_KEY`).
+
+---
+
+## 📐 Como Funciona o `source_file` (Live Code Binding)
+
+Quando você roda `promptcheck scan` (ou `promptcheck init`), ele gera um `promptcheck.yaml` vinculado diretamente aos seus arquivos de código:
+
+```yaml
+version: 1
+project: meu-projeto
+defaults:
+  provider: openai
+  model: gpt-4o-mini
+  temperature: 0
+  response_format: json_object
+  fail_under: 95
+
+contracts:
+  - slug: compare-roadmaps
+    name: Compare Roadmaps API
+    source_file: ./src/app/api/ai/compare-roadmaps/route.ts
+    schema:
+      $schema: https://json-schema.org/draft/2020-12/schema
+      type: object
+      properties:
+        executiveSummary:
+          type: string
+        overallAlignmentScore:
+          type: number
+      required:
+        - executiveSummary
+        - overallAlignmentScore
+      additionalProperties: false
+    cases:
+      - id: tc_compare_1
+        name: Comparação estruturada entre dois roadmaps
+        input:
+          instruction: "Retorne apenas JSON válido seguindo o schema."
+        assertions:
+          - type: not_empty
+            path: $.executiveSummary
 ```
 
 ---
 
-## 🔒 Princípios de Privacy by Design (LGPD)
+## 🧭 Detecção Automática de Drift
 
-- **Zero Output da LLM no SaaS:** A resposta bruta gerada pelo modelo nunca é enviada ao SaaS.
-- **Zero Texto de Prompt no SaaS:** Os prompts residem exclusivamente no repositório do cliente; o SaaS recebe apenas um `prompt_hash` canônico (SHA-256).
-- **Dados Sintéticos no SaaS:** O Gold Dataset cadastrado na interface aceita exclusivamente dados sintéticos/fixtures com aviso proativo de LGPD.
-- **Diffs de Erro Seguros:** Relatórios de falha contêm unicamente metadados estruturais (`json_path`, `rule_violated`, `expected_type`, `received_type`).
-- **Anonimização no Git:** `commit_author` captura apenas o handle público do dev, descartando e-mails.
-- **Zero API Keys no SaaS:** Chaves de provedores de IA ficam nos secrets do cliente; o Project Token trafega via header `Authorization: Bearer <token>` e fica no banco como hash SHA-256.
+Mesmo quando ninguém altera o código (`prompt_hash` idêntico), o modelo de IA pode mudar de comportamento. O PromptCheck compara cada execução com o baseline anterior (`.promptcheck/baseline.json` localmente ou no banco PostgreSQL do Dashboard) e emite alerta quando:
+
+1. **`FINGERPRINT_CHANGED`**: O provedor atualizou silenciosamente o `system_fingerprint` do modelo.
+2. **`PASS_RATE_DROPPED`**: Queda na taxa de aprovação além da tolerância configurada (padrão: 5%).
+3. **`LATENCY_INCREASED`**: Aumento de latência média superior a 50%.
 
 ---
 
-## 📐 Regra de Detecção de Drift
+## 🖥️ Subindo o Dashboard Web Self-Hosted (Opcional)
 
-O status da execução transiciona para **Aviso de Drift** (`status: warning`, cor âmbar) quando o `prompt_hash` e a `contract_version` permanecem idênticos à última execução de referência da branch principal, mas ocorre:
+Se você quiser o painel visual completo para acompanhar múltiplos projetos e histórico de execuções em equipe:
 
-1. **`FINGERPRINT_CHANGED`**: O provedor atualizou silenciosamente o `system_fingerprint` do modelo.
-2. **`PASS_RATE_DROPPED`**: Queda na taxa de aprovação além da tolerância configurável (padrão: 5 pontos percentuais).
-3. **`LATENCY_INCREASED`**: Aumento de latência média superior a 50%.
+```bash
+# 1. Clone o repositório
+git clone https://github.com/techtinker-lab/promptcheck.git
+cd promptcheck
+
+# 2. Instale as dependências
+pnpm install
+
+# 3. Suba o PostgreSQL via Docker
+docker compose up -d
+
+# 4. Crie as tabelas no banco e inicie a API + Dashboard Web
+pnpm --filter @promptcheck/api run db:push
+pnpm run dev
+```
+
+- **Dashboard Web:** `http://localhost:5173`
+- **API Control Plane:** `http://localhost:3333`
+
+Quando o Control Plane está rodando localmente, o comando `promptcheck init` ou `promptcheck scan` cria o projeto e configura o `PROMPTCHECK_TOKEN` automaticamente no seu `.env.local`!
 
 ---
 
@@ -63,99 +119,18 @@ O status da execução transiciona para **Aviso de Drift** (`status: warning`, c
 ```
 promptcheck/
 ├── apps/
-│   ├── api/            # Fastify + Drizzle ORM + PostgreSQL (Control Plane)
-│   └── web/            # Vite + React + Tailwind CSS + TanStack Query (Dashboard)
+│   ├── api/            # Fastify + Drizzle ORM + PostgreSQL (Self-Hosted Control Plane)
+│   └── web/            # Vite + React + Tailwind CSS (Dashboard Web Dark-Mode)
 ├── packages/
-│   ├── shared/         # Zod schemas (.strict()), tipos, detectores de segredos e hashes
-│   └── cli/            # @techtinker/promptcheck — CLI Node.js com binário promptcheck
-├── docs/               # requisitos.md, guia_ui_ux.md, arquitetura.md
-├── docker-compose.yml  # PostgreSQL 16 local
-└── pnpm-workspace.yaml # Configuração de monorepo pnpm workspaces
+│   ├── shared/         # Zod schemas, hashes SHA-256 canônicos e detector de segredos
+│   └── cli/            # @techtinker/promptcheck — CLI standalone + Scanner de Código IA
+├── CONTRIBUTING.md     # Guia de contribuição para a comunidade
+├── LICENSE             # Licença MIT
+└── docker-compose.yml  # PostgreSQL 16 para self-hosting rápido
 ```
-
----
-
-## 🚀 Começando
-
-### 1. Pré-requisitos
-- **Node.js:** `>= 20.0.0`
-- **pnpm:** `>= 10.0.0` (recomendado: `12.14.0`)
-- **Docker & Docker Compose:** para o PostgreSQL local
-
-### 2. Clonar e Instalar Dependências
-
-```bash
-git clone https://github.com/techtinker/promptcheck.git
-cd promptcheck
-pnpm install
-```
-
-### 3. Iniciar o Banco de Dados
-
-```bash
-docker compose up -d
-```
-
-### 4. Configurar Variáveis de Ambiente
-
-Copie o arquivo de exemplo para a API:
-
-```bash
-cp .env.example apps/api/.env
-```
-
-Execute as migrações/push do schema:
-
-```bash
-pnpm --filter @promptcheck/api run db:push
-```
-
-### 5. Iniciar Serviços em Modo de Desenvolvimento
-
-```bash
-# Iniciar a API e o Dashboard simultaneamente:
-pnpm run dev
-
-# Ou se preferir em terminais separados:
-# Terminal 1: pnpm run dev:api (API Fastify na porta 3333)
-# Terminal 2: pnpm run dev:web (Dashboard Vite na porta 5173)
-```
-
-- **Dashboard Web:** [http://localhost:5173](http://localhost:5173)
-- **API Fastify:** [http://localhost:3333](http://localhost:3333) (Health check: `/health`)
-
----
-
-## 💻 Usando a CLI
-
-Dentro de qualquer repositório que utilize prompts e LLMs:
-
-```bash
-# 1. Inicializar configuração interativa
-npx @techtinker/promptcheck init
-
-# 2. Configurar credenciais
-export PROMPTCHECK_TOKEN="pck_live_..."
-export OPENAI_API_KEY="sk-proj-..."
-
-# 3. Rodar os testes
-npx @techtinker/promptcheck test
-```
-
----
-
-## 🛠️ Scripts do Monorepo
-
-| Comando | Descrição |
-|---|---|
-| `pnpm run build` | Compila todos os pacotes (`shared`, `cli`, `api`, `web`) |
-| `pnpm test` | Executa todos os testes unitários com Vitest |
-| `pnpm run typecheck` | Executa validação de tipos TypeScript estrita em todos os pacotes |
-| `pnpm run lint` | Executa checagem de código com Biome |
-| `pnpm run lint:fix` | Corrige problemas de formatação e lint automaticamente |
 
 ---
 
 ## 📄 Licença
 
-Este projeto é licenciado sob a licença **MIT** — consulte o arquivo [LICENSE](LICENSE) para detalhes.
+Distribuído sob a licença **MIT**. Veja [LICENSE](LICENSE) e [CONTRIBUTING.md](CONTRIBUTING.md) para mais informações.

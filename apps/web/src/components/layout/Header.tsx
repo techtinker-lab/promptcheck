@@ -1,4 +1,4 @@
-import { CreditCard, Globe, LogOut, ShieldCheck } from 'lucide-react';
+import { Code2, Globe, LogOut, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { api } from '../../lib/api-client.js';
@@ -41,8 +41,8 @@ export function Header({ user, onLogout, currentProjectSlug }: HeaderProps) {
             <div className="flex flex-col">
               <span className="font-bold text-sm tracking-tight text-zinc-100 flex items-center gap-1.5">
                 PromptCheck
-                <span className="text-[10px] font-mono font-normal px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
-                  TechTinker
+                <span className="text-[10px] font-mono font-normal px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                  OSS
                 </span>
               </span>
             </div>
@@ -75,20 +75,15 @@ export function Header({ user, onLogout, currentProjectSlug }: HeaderProps) {
           )}
         </div>
 
-        {/* Right Actions: Lang Switcher, User, Logout */}
+        {/* Right Actions: OSS Badge, Lang Switcher, User, Logout */}
         <div className="flex items-center gap-3">
-          <Link
-            to="/billing"
-            className={`flex items-center gap-1.5 text-xs font-mono px-2.5 py-1.5 rounded-md border transition-colors ${
-              location.pathname === '/billing'
-                ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400 font-medium'
-                : 'border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:border-zinc-700'
-            }`}
-            title={t('nav.billing')}
+          <span
+            className="hidden sm:flex items-center gap-1.5 text-xs font-mono px-2.5 py-1.5 rounded-md border border-zinc-800 text-zinc-400"
+            title="Open Source Edition (MIT License)"
           >
-            <CreditCard className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{t('nav.billing')}</span>
-          </Link>
+            <Code2 className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Open Source (MIT)</span>
+          </span>
 
           <button
             type="button"

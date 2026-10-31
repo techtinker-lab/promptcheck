@@ -16,7 +16,8 @@
     "format": "biome format --write .",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
-    "db:logs": "docker compose logs -f"
+    "db:logs": "docker compose logs -f",
+    "db:seed": "pnpm --filter @promptcheck/api run db:seed"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

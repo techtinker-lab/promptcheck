@@ -1,19 +1,48 @@
 {
   "name": "@techtinker/promptcheck",
-  "version": "0.1.0",
-  "description": "CLI leve de testes de contrato e detecção de regressão/drift para prompts de LLM",
+  "version": "0.2.0",
+  "description": "Open Source CLI for LLM Prompt Contract Testing, Live Code Binding (source_file) & Model Drift Detection",
+  "license": "MIT",
+  "author": "TechTinker <contato@techtinker.com.br>",
+  "homepage": "https://github.com/techtinker-lab/promptcheck",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/techtinker-lab/promptcheck.git",
+    "directory": "packages/cli"
+  },
+  "keywords": [
+    "llm",
+    "prompt-testing",
+    "contract-testing",
+    "json-schema",
+    "drift-detection",
+    "openai",
+    "ai-engineering",
+    "ci-cd",
+    "promptcheck"
+  ],
   "type": "module",
   "bin": {
     "promptcheck": "./bin/cli.js"
   },
+  "files": [
+    "bin",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "tsx src/cli.ts",
     "build": "tsup",
+    "prepublishOnly": "pnpm run build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
-    "@promptcheck/shared": "workspace:*",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
     "commander": "^12.1.0",
@@ -22,6 +51,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@promptcheck/shared": "workspace:*",
     "@types/node": "^20.17.24",
     "tsup": "^8.3.6",
     "tsx": "^4.19.3",

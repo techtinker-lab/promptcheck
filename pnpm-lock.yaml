@@ -211,9 +211,6 @@ importers:
       postgres:
         specifier: ^3.4.5
         version: 3.4.9
-      stripe:
-        specifier: ^23.0.0
-        version: 23.0.0(@types/node@20.19.43)
       zod:
         specifier: ^3.24.2
         version: 3.25.76
@@ -291,9 +288,6 @@ importers:
 
   packages/cli:
     dependencies:
-      '@promptcheck/shared':
-        specifier: workspace:*
-        version: link:../shared
       ajv:
         specifier: ^8.17.1
         version: 8.20.0
@@ -313,6 +307,9 @@ importers:
         specifier: ^3.24.2
         version: 3.25.76
     devDependencies:
+      '@promptcheck/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@types/node':
         specifier: ^20.17.24
         version: 20.19.43
@@ -2490,15 +2487,6 @@ packages:
   std-env@3.10.0:
     resolution: {integrity: sha512-5GS12FdOZNliM5mAOxFRg7Ir0pWz8MdpYm6AY6VPkGpbA7ZzmbzNcBJQ0GPvvyWgcY7QAhCgf9Uy89I03faLkg==}
 
-  stripe@23.0.0:
-    resolution: {integrity: sha512-MDE2A5ZVVluYURORaZEVghSmnLJc3w6aHAlZSxDQMsOjOb3V0O6ro/CiaeFlJS4N7uIVmsg98ocRsPmUK6YfyA==}
-    engines: {node: '>=20'}
-    peerDependencies:
-      '@types/node': '>=20'
-    peerDependenciesMeta:
-      '@types/node':
-        optional: true
-
   sucrase@3.35.1:
     resolution: {integrity: sha512-DhuTmvZWux4H1UOnWMB3sk0sbaCVOoQZjv8u1rDoTV0HTdGem9hkAZtl4JZy8P2z4Bg0nT+YMeOFyVr4zcG5Tw==}
     engines: {node: '>=16 || 14 >=14.17'}
@@ -4395,10 +4383,6 @@ snapshots:
   stackback@0.0.2: {}
 
   std-env@3.10.0: {}
-
-  stripe@23.0.0(@types/node@20.19.43):
-    optionalDependencies:
-      '@types/node': 20.19.43
 
   sucrase@3.35.1:
     dependencies:

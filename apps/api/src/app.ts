@@ -4,7 +4,6 @@ import rateLimit from '@fastify/rate-limit';
 import fastify, { type FastifyError, type FastifyInstance } from 'fastify';
 import { env } from './config/env.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
-import { billingRoutes } from './modules/billing/billing.routes.js';
 import { cliRoutes } from './modules/cli/cli.routes.js';
 import { contractRoutes } from './modules/contracts/contracts.routes.js';
 import { projectRoutes } from './modules/projects/projects.routes.js';
@@ -40,14 +39,22 @@ export function buildApp(): FastifyInstance {
       // Permite requisições sem origin (como CLI ou mobile/curl)
       if (!origin) return cb(null, true);
 
-      // Em desenvolvimento, permite localhost
+      // Em desenvolvimento/teste, permite localhost em qualquer porta
       if (env.NODE_ENV === 'development' || env.NODE_ENV === 'test') {
         if (/^http:\/\/localhost(?::\d+)?$/.test(origin)) {
           return cb(null, true);
         }
       }
 
-      // Em produção, permite apenas domínio oficial *.techtinker.com.br
+      // Permite origens configuradas em CORS_ORIGIN (suporta lista separada por vírgula ou '*')
+      const allowedOrigins = env.CORS_ORIGIN.split(',')
+        .map((o) => o.trim())
+        .filter(Boolean);
+      if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+        return cb(null, true);
+      }
+
+      // Compatibilidade com domínios *.techtinker.com.br
       if (/^https:\/\/(?:[a-zA-Z0-9-]+\.)*techtinker\.com\.br$/.test(origin)) {
         return cb(null, true);
       }
@@ -73,7 +80,6 @@ export function buildApp(): FastifyInstance {
   app.register(contractRoutes, { prefix: '/api/v1/projects/:projectId/contracts' });
   app.register(runsRoutes, { prefix: '/api/v1/projects/:projectId/runs' });
   app.register(cliRoutes, { prefix: '/api/v1/cli' });
-  app.register(billingRoutes, { prefix: '/api/v1/billing' });
 
   // 4. Tratamento Global de Erros
   app.setErrorHandler((error: FastifyError, request, reply) => {

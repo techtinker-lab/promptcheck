@@ -20,9 +20,6 @@ const envSchema = z.object({
     .default('development-cookie-secret-min-32-chars-long-random-string'),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   DASHBOARD_URL: z.string().default('http://localhost:5173'),
-  STRIPE_SECRET_KEY: z.string().default('sk_test_mock_stripe_key'),
-  STRIPE_WEBHOOK_SECRET: z.string().default('whsec_mock_stripe_webhook_key'),
-  STRIPE_PRO_PRICE_ID: z.string().default('price_mock_pro_monthly'),
 });
 
 export type Env = z.infer<typeof envSchema>;

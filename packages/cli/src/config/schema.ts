@@ -1,3 +1,4 @@
+import { CreateTestCaseInputSchema } from '@promptcheck/shared';
 import { z } from 'zod';
 
 export const ResponseFormatEnum = z.enum(['json_object', 'json_schema']);
@@ -28,8 +29,15 @@ export const DefaultsConfigSchema = z
 export const ContractConfigSchema = z
   .object({
     slug: z.string().min(1).max(80),
-    prompt_file: z.string().min(1),
+    name: z.string().min(1).max(120).optional(),
+    description: z.string().max(1000).optional(),
+    prompt: z.string().min(1).optional(),
+    prompt_file: z.string().min(1).optional(),
+    source_file: z.string().min(1).optional(),
+    system: z.string().min(1).optional(),
     system_file: z.string().optional(),
+    schema: z.record(z.unknown()).optional(),
+    cases: z.array(CreateTestCaseInputSchema).optional(),
     provider: z.string().optional(),
     model: z.string().optional(),
     temperature: z.number().min(0).max(2).optional(),
@@ -41,13 +49,17 @@ export const ContractConfigSchema = z
     base_url: z.string().url().optional(),
     local_cases: z.string().optional(),
   })
-  .strict();
+  .strict()
+  .refine((c) => Boolean(c.prompt || c.prompt_file || c.source_file), {
+    message: 'Defina "source_file", "prompt" (inline) ou "prompt_file" no contrato',
+    path: ['source_file'],
+  });
 
 export const PromptCheckConfigSchema = z
   .object({
     version: z.literal(1),
     project: z.string().min(1).max(80),
-    api_url: z.string().url().default('https://api.promptcheck.techtinker.com.br'),
+    api_url: z.string().url().default('http://localhost:3333'),
     defaults: DefaultsConfigSchema.default({}),
     contracts: z.array(ContractConfigSchema).min(1, 'Defina ao menos um contrato em contracts'),
     pricing_fallback: z.record(PricingFallbackEntrySchema).optional(),

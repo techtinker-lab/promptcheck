@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from './components/layout/Header.js';
 import { AuthPage } from './features/auth/AuthPage.js';
-import { BillingPage } from './features/billing/BillingPage.js';
 import { ContractsPage } from './features/contracts/ContractsPage.js';
 import { ProjectOnboarding } from './features/projects/ProjectOnboarding.js';
 import { ProjectsListPage } from './features/projects/ProjectsListPage.js';
@@ -29,10 +28,24 @@ export function App() {
   const match = location.pathname.match(/^\/projects\/([^/]+)/);
   const currentProjectSlug = match && match[1] !== 'projects' ? match[1] : undefined;
 
+  const redirectAfterLogin =
+    (location.state as { from?: string } | null)?.from || '/projects';
+
   const handleAuthSuccess = (authenticatedUser: User) => {
     queryClient.setQueryData(['me'], { user: authenticatedUser });
-    navigate('/projects');
+    navigate(redirectAfterLogin, { replace: true });
   };
+
+  const requireAuth = (element: React.ReactNode) =>
+    user ? (
+      element
+    ) : (
+      <Navigate
+        to="/login"
+        replace
+        state={{ from: `${location.pathname}${location.search}` }}
+      />
+    );
 
   const handleLogout = () => {
     queryClient.setQueryData(['me'], null);
@@ -60,46 +73,35 @@ export function App() {
             path="/login"
             element={
               user ? (
-                <Navigate to="/projects" replace />
+                <Navigate to={redirectAfterLogin} replace />
               ) : (
                 <AuthPage onSuccess={handleAuthSuccess} />
               )
             }
           />
 
-          <Route
-            path="/projects"
-            element={user ? <ProjectsListPage /> : <Navigate to="/login" replace />}
-          />
+          <Route path="/projects" element={requireAuth(<ProjectsListPage />)} />
 
           <Route
             path="/projects/:slug/onboarding"
-            element={user ? <ProjectOnboarding /> : <Navigate to="/login" replace />}
+            element={requireAuth(<ProjectOnboarding />)}
           />
 
           <Route
             path="/projects/:slug/contracts"
-            element={user ? <ContractsPage /> : <Navigate to="/login" replace />}
+            element={requireAuth(<ContractsPage />)}
           />
 
-          <Route
-            path="/projects/:slug/runs"
-            element={user ? <RunsListPage /> : <Navigate to="/login" replace />}
-          />
+          <Route path="/projects/:slug/runs" element={requireAuth(<RunsListPage />)} />
 
           <Route
             path="/projects/:slug/runs/:runId"
-            element={user ? <RunDetailPage /> : <Navigate to="/login" replace />}
+            element={requireAuth(<RunDetailPage />)}
           />
 
           <Route
             path="/projects/:slug/compare"
-            element={user ? <CompareRunsPage /> : <Navigate to="/login" replace />}
-          />
-
-          <Route
-            path="/billing"
-            element={user ? <BillingPage /> : <Navigate to="/login" replace />}
+            element={requireAuth(<CompareRunsPage />)}
           />
 
           <Route path="/" element={<Navigate to={user ? '/projects' : '/login'} replace />} />

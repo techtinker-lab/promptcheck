@@ -127,27 +127,47 @@ export async function runContract(options: RunContractOptions): Promise<RunContr
       const errors: CaseError[] = [];
 
       // 1. Interpolação de variáveis
-      const { result: userPrompt, missingVariables } = interpolatePrompt(
-        userPromptTemplate,
-        testCase.input
-      );
-      if (missingVariables.length > 0) {
-        return {
-          case_id: testCase.id,
-          status: 'fail',
-          latency_ms: 0,
-          input_tokens: 0,
-          output_tokens: 0,
-          errors: [
-            {
-              code: ErrorCodes.TEMPLATE_VARIABLE_MISSING,
-              json_path: '$',
-              rule_violated: 'interpolation',
-              expected_type: missingVariables.join(', '),
-              received_type: 'undefined',
-            },
-          ],
-        };
+      let userPrompt: string;
+      if (contractConfig.source_file) {
+        // Quando vinculado via source_file ao código-fonte real, injeta os inputs do caso e o schema esperado
+        const interpolated = userPromptTemplate.replace(
+          /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g,
+          (_, key) => {
+            const val = testCase.input[key];
+            if (val === undefined || val === null) return '';
+            return typeof val === 'object' ? JSON.stringify(val) : String(val);
+          }
+        );
+        userPrompt = `${interpolated}\n\n[Contexto de Entrada do Teste]:\n${JSON.stringify(
+          testCase.input,
+          null,
+          2
+        )}\n\n[Schema JSON Obrigatório de Saída]:\nRetorne APENAS um objeto JSON válido compatível com este JSON Schema:\n${JSON.stringify(
+          schema,
+          null,
+          2
+        )}`;
+      } else {
+        const { result, missingVariables } = interpolatePrompt(userPromptTemplate, testCase.input);
+        if (missingVariables.length > 0) {
+          return {
+            case_id: testCase.id,
+            status: 'fail',
+            latency_ms: 0,
+            input_tokens: 0,
+            output_tokens: 0,
+            errors: [
+              {
+                code: ErrorCodes.TEMPLATE_VARIABLE_MISSING,
+                json_path: '$',
+                rule_violated: 'interpolation',
+                expected_type: missingVariables.join(', '),
+                received_type: 'undefined',
+              },
+            ],
+          };
+        }
+        userPrompt = result;
       }
 
       // 2. Chamada ao provedor de IA
@@ -198,27 +218,37 @@ export async function runContract(options: RunContractOptions): Promise<RunContr
         };
       }
 
-      // 3. Parse determinístico do JSON retornado
+      // 3. Parse determinístico do JSON retornado (com extração de bloco ```json se aplicável)
       let parsedJson: unknown;
       try {
         parsedJson = JSON.parse(rawOutput);
       } catch {
-        return {
-          case_id: testCase.id,
-          status: 'fail',
-          latency_ms: latencyMs,
-          input_tokens: inputTokens,
-          output_tokens: outputTokens,
-          errors: [
-            {
-              code: ErrorCodes.SCHEMA_VALIDATION_FAILED,
-              json_path: '$',
-              rule_violated: 'json_syntax',
-              expected_type: 'valid_json',
-              received_type: 'malformed_string',
-            },
-          ],
-        };
+        const fenceMatch = rawOutput.match(/```(?:json)?\s*([\s\S]*?)```/i);
+        if (fenceMatch?.[1]) {
+          try {
+            parsedJson = JSON.parse(fenceMatch[1].trim());
+          } catch {
+            parsedJson = undefined;
+          }
+        }
+        if (parsedJson === undefined) {
+          return {
+            case_id: testCase.id,
+            status: 'fail',
+            latency_ms: latencyMs,
+            input_tokens: inputTokens,
+            output_tokens: outputTokens,
+            errors: [
+              {
+                code: ErrorCodes.SCHEMA_VALIDATION_FAILED,
+                json_path: '$',
+                rule_violated: 'json_syntax',
+                expected_type: 'valid_json',
+                received_type: 'malformed_string',
+              },
+            ],
+          };
+        }
       }
 
       // 4. Validação do JSON Schema com Ajv

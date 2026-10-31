@@ -37,13 +37,16 @@ export function RunDetailPage() {
   // 2. Fetch Run details
   const { data, isLoading, error } = useQuery<{
     run: TestRunEntity;
-    contract_results: RunContractResultEntity[];
+    contract_results?: RunContractResultEntity[];
+    contracts?: RunContractResultEntity[];
   }>({
     queryKey: ['run', slug, runId],
     queryFn: () =>
-      api.get<{ run: TestRunEntity; contract_results: RunContractResultEntity[] }>(
-        `/api/v1/projects/${slug}/runs/${runId}`
-      ),
+      api.get<{
+        run: TestRunEntity;
+        contract_results?: RunContractResultEntity[];
+        contracts?: RunContractResultEntity[];
+      }>(`/api/v1/projects/${slug}/runs/${runId}`),
     enabled: Boolean(slug && runId),
   });
 
@@ -53,7 +56,7 @@ export function RunDetailPage() {
     );
   }
 
-  if (error || !data) {
+  if (error || !data || !data.run) {
     return (
       <div className="py-16 text-center text-rose-400 font-mono text-sm">
         Execução não encontrada ou erro ao carregar detalhes.
@@ -61,7 +64,8 @@ export function RunDetailPage() {
     );
   }
 
-  const { run, contract_results } = data;
+  const { run } = data;
+  const contract_results = data.contract_results ?? data.contracts ?? [];
   const passRate =
     run.totalCases > 0 ? ((run.passedCases / run.totalCases) * 100).toFixed(1) : '100.0';
 
@@ -229,8 +233,8 @@ export function RunDetailPage() {
 
         <div className="space-y-6">
           {contract_results.map((cr) => {
-            const hasDrift = cr.drift_reasons && cr.drift_reasons.length > 0;
-            const failedCases = cr.case_results.filter((c) => c.status === 'fail');
+            const hasDrift = Array.isArray(cr.drift_reasons) && cr.drift_reasons.length > 0;
+            const failedCases = (cr.case_results || []).filter((c) => c.status === 'fail');
 
             return (
               <Card key={cr.id} className="space-y-4">

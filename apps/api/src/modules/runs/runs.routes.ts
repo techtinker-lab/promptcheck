@@ -129,6 +129,7 @@ export const runsRoutes: FastifyPluginAsync = async (fastify) => {
 
       return reply.send({
         run,
+        contract_results: contractResults,
         contracts: contractResults,
       });
     }

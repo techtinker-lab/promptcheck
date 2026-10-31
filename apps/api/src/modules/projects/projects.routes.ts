@@ -9,7 +9,6 @@ import { db } from '../../db/connection.js';
 import { projects } from '../../db/schema.js';
 import { authenticateUser } from '../../plugins/auth.plugin.js';
 import { generateProjectToken } from '../../services/auth.service.js';
-import { billingService } from '../billing/billing.service.js';
 
 export const projectRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.addHook('preHandler', authenticateUser);
@@ -67,16 +66,6 @@ export const projectRoutes: FastifyPluginAsync = async (fastify) => {
     }
 
     const { name, slug, default_branch, drift_pass_rate_tolerance } = parse.data;
-
-    const quota = await billingService.checkProjectQuota(user.id);
-    if (!quota.allowed) {
-      return reply.status(403).send({
-        error: {
-          code: 'PROJECT_LIMIT_EXCEEDED',
-          message: `Limite de projetos atingido para seu plano (${quota.current}/${quota.max}). Faça upgrade para o plano Pro para criar mais projetos.`,
-        },
-      });
-    }
 
     const [existing] = await db
       .select({ id: projects.id })
