@@ -1,10 +1,10 @@
-# promptcheck
+# @techtinker/promptcheck
 
 > **Open Source CLI for LLM Prompt Contract Testing, Live Code Binding (`source_file`) & Silent Model Drift Detection.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](https://opensource.org/licenses/MIT)
 
-O **`promptcheck`** testa seus prompts de IA diretamente a partir do código-fonte real da sua aplicação (`.ts`, `.tsx`, `.js`, `.py`), sem que você precise duplicar textos de prompts ou manter arquivos de teste manualmente.
+O **`@techtinker/promptcheck`** testa seus prompts de IA diretamente a partir do código-fonte real da sua aplicação (`.ts`, `.tsx`, `.js`, `.py`), sem que você precise duplicar textos de prompts ou manter arquivos de teste manualmente.
 
 ---
 
@@ -21,10 +21,10 @@ O **`promptcheck`** testa seus prompts de IA diretamente a partir do código-fon
 
 ```bash
 # 1. Escaneie seu projeto e gere o promptcheck.yaml automaticamente
-npx promptcheck scan
+npx @techtinker/promptcheck scan
 
 # 2. Execute os testes de contrato (lê OPENAI_API_KEY do ambiente ou .env.local)
-npx promptcheck test
+npx @techtinker/promptcheck test
 ```
 
 ---

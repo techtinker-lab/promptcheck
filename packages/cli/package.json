@@ -1,5 +1,5 @@
 {
-  "name": "promptcheck",
+  "name": "@techtinker/promptcheck",
   "version": "0.2.0",
   "description": "Open Source CLI for LLM Prompt Contract Testing, Live Code Binding (source_file) & Model Drift Detection",
   "license": "MIT",
@@ -7,7 +7,7 @@
   "homepage": "https://github.com/techtinker-lab/promptcheck",
   "repository": {
     "type": "git",
-    "url": "https://github.com/techtinker-lab/promptcheck.git",
+    "url": "git+https://github.com/techtinker-lab/promptcheck.git",
     "directory": "packages/cli"
   },
   "keywords": [
@@ -23,7 +23,7 @@
   ],
   "type": "module",
   "bin": {
-    "promptcheck": "./bin/cli.js"
+    "promptcheck": "bin/cli.js"
   },
   "files": [
     "bin",

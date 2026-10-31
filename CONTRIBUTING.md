@@ -33,7 +33,7 @@ pnpm run typecheck
 
 ## 📦 Arquitetura do Monorepo
 
-- `packages/cli` (`promptcheck`): CLI standalone com AI Auto-Discovery (`promptcheck scan`), Live Code Binding (`source_file`), validador JSON Schema (Ajv Draft 2020-12) e detecção de drift local (`.promptcheck/baseline.json`).
+- `packages/cli` (`@techtinker/promptcheck`): CLI standalone com AI Auto-Discovery (`promptcheck scan`), Live Code Binding (`source_file`), validador JSON Schema (Ajv Draft 2020-12) e detecção de drift local (`.promptcheck/baseline.json`).
 - `packages/shared` (`@promptcheck/shared`): Schemas Zod estritos, cálculo de hash canônico SHA-256 (`canonicalHash`), tabelas de preços de tokens e detector de segredos (`detectSecrets`).
 - `apps/api` (`@promptcheck/api`): Servidor Fastify + Drizzle ORM opcional (Self-Hosted Control Plane) para histórico de runs e governança em equipe.
 - `apps/web` (`@promptcheck/web`): Dashboard React + Vite + Tailwind CSS para visualização de runs, diffs estruturais e alertas de drift.
