@@ -11,6 +11,21 @@ jobs:
     name: Lint, Typecheck, Test & Build
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci_test_password
+          POSTGRES_DB: promptcheck
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -35,8 +50,15 @@ jobs:
       - name: Typecheck Monorepo (tsc)
         run: pnpm run typecheck
 
+      - name: Setup Test Database Schema
+        run: pnpm --filter @promptcheck/api run db:push --force
+        env:
+          DATABASE_URL: postgres://postgres:ci_test_password@localhost:5432/promptcheck
+
       - name: Run Unit & Integration Tests (Vitest)
         run: pnpm test
+        env:
+          DATABASE_URL: postgres://postgres:ci_test_password@localhost:5432/promptcheck
 
       - name: Build Monorepo (tsup & vite)
         run: pnpm run build
