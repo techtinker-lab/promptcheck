@@ -4,7 +4,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-promptcheck}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-promptcheck_secret_2026}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       POSTGRES_DB: ${POSTGRES_DB:-promptcheck_db}
     volumes:
       - postgres_prod_data:/var/lib/postgresql/data
@@ -26,9 +26,9 @@ services:
       NODE_ENV: production
       PORT: 3333
       HOST: 0.0.0.0
-      DATABASE_URL: postgres://${POSTGRES_USER:-promptcheck}:${POSTGRES_PASSWORD:-promptcheck_secret_2026}@postgres:5432/${POSTGRES_DB:-promptcheck_db}
-      JWT_SECRET: ${JWT_SECRET:-prod_jwt_super_secret_key_minimum_32_characters_long_12345}
-      COOKIE_SECRET: ${COOKIE_SECRET:-prod_cookie_super_secret_key_minimum_32_chars_long_12345}
+      DATABASE_URL: postgres://${POSTGRES_USER:-promptcheck}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-promptcheck_db}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      COOKIE_SECRET: ${COOKIE_SECRET:?COOKIE_SECRET is required}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
     ports:
       - "3333:3333"
