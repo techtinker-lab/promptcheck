@@ -238,9 +238,7 @@ export async function runTest(options: TestCommandOptions): Promise<void> {
 
     const remoteContract = contractMap.get(contractConfig.slug);
     if (!remoteContract) {
-      console.log(
-        pc.yellow(`⚠ Contrato "${contractConfig.slug}" não encontrado. Pulando...`)
-      );
+      console.log(pc.yellow(`⚠ Contrato "${contractConfig.slug}" não encontrado. Pulando...`));
       continue;
     }
 
@@ -318,18 +316,14 @@ export async function runTest(options: TestCommandOptions): Promise<void> {
   }
 
   // 6. Resumo e Exit Code + Baseline Local (Standalone Open Source Drift Detection)
-  const localDriftEvaluations = evaluateAndSaveLocalDrift(
-    configDir,
-    config.project,
-    reports
-  );
+  const localDriftEvaluations = evaluateAndSaveLocalDrift(configDir, config.project, reports);
   const localDriftItems = localDriftEvaluations.filter((e) => e.driftReasons.length > 0);
   if (localDriftItems.length > 0) {
-    console.log(pc.yellow(`\n⚠ ${t('contractDrift')} (baseline local .promptcheck/baseline.json):`));
+    console.log(
+      pc.yellow(`\n⚠ ${t('contractDrift')} (baseline local .promptcheck/baseline.json):`)
+    );
     for (const item of localDriftItems) {
-      console.log(
-        pc.yellow(`  • ${item.slug}: ${item.driftReasons.join(', ')}`)
-      );
+      console.log(pc.yellow(`  • ${item.slug}: ${item.driftReasons.join(', ')}`));
     }
   }
 

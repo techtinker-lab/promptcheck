@@ -80,7 +80,9 @@ async function seedLocal() {
       })
       .where(eq(projects.id, project.id))
       .returning();
-    console.log(`ℹ️ Projeto sincronizado: ${TORNEIOS_PROJECT_NAME} (slug: ${TORNEIOS_PROJECT_SLUG})`);
+    console.log(
+      `ℹ️ Projeto sincronizado: ${TORNEIOS_PROJECT_NAME} (slug: ${TORNEIOS_PROJECT_SLUG})`
+    );
   }
 
   if (!project) {

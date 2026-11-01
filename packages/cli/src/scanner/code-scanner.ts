@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { type Stats, existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { basename, dirname, extname, relative, resolve } from 'node:path';
 import type { CreateTestCaseInput } from '@promptcheck/shared';
 
@@ -107,7 +107,8 @@ export function extractLivePromptFromSource(filePath: string): string {
 
   // 2. Python triple-quoted strings (f"""...""" ou """...""")
   if (extractedBlocks.length === 0) {
-    const pyRegex = /(?:system_prompt|prompt|instructions)\s*=\s*f?(?:"""([\s\S]*?)"""|'''([\s\S]*?)''')/g;
+    const pyRegex =
+      /(?:system_prompt|prompt|instructions)\s*=\s*f?(?:"""([\s\S]*?)"""|'''([\s\S]*?)''')/g;
     let pyMatch: RegExpExecArray | null = pyRegex.exec(code);
     while (pyMatch !== null) {
       const content = (pyMatch[1] || pyMatch[2] || '').trim();
@@ -171,7 +172,7 @@ export function scanRepositoryForAiFiles(projectRoot: string): DiscoveredAiFile[
       if (IGNORED_DIRS.has(entry) || entry.startsWith('.')) continue;
       const fullPath = resolve(dir, entry);
 
-      let stat;
+      let stat: Stats;
       try {
         stat = statSync(fullPath);
       } catch {
@@ -316,33 +317,35 @@ ${file.sourceCode.slice(0, 6000)}
           ...parsed.schema,
         };
 
-        const sanitizedCases: CreateTestCaseInput[] = Array.isArray(parsed.cases) && parsed.cases.length > 0
-          ? parsed.cases.map((c, idx) => ({
-              id: c.id || `tc_${file.suggestedSlug.replace(/-/g, '_')}_${idx + 1}`,
-              name: c.name || `Caso Sintético ${idx + 1}`,
-              input: c.input && typeof c.input === 'object' ? c.input : { input: 'Teste automático' },
-              assertions: Array.isArray(c.assertions)
-                ? c.assertions.filter((a) => {
-                    if (!a || typeof a !== 'object' || !a.type || !a.path) return false;
-                    if (a.type === 'not_null') {
-                      return true;
-                    }
-                    return 'value' in a;
-                  }).map((a) =>
-                    a.type === 'not_null'
-                      ? { type: 'not_null' as const, path: a.path }
-                      : a
-                  )
-                : [],
-            }))
-          : [
-              {
-                id: `tc_${file.suggestedSlug.replace(/-/g, '_')}_1`,
-                name: 'Caso Sintético Padrão',
-                input: { prompt: 'Gere uma resposta de teste válida seguindo o schema.' },
-                assertions: [],
-              },
-            ];
+        const sanitizedCases: CreateTestCaseInput[] =
+          Array.isArray(parsed.cases) && parsed.cases.length > 0
+            ? parsed.cases.map((c, idx) => ({
+                id: c.id || `tc_${file.suggestedSlug.replace(/-/g, '_')}_${idx + 1}`,
+                name: c.name || `Caso Sintético ${idx + 1}`,
+                input:
+                  c.input && typeof c.input === 'object' ? c.input : { input: 'Teste automático' },
+                assertions: Array.isArray(c.assertions)
+                  ? c.assertions
+                      .filter((a) => {
+                        if (!a || typeof a !== 'object' || !a.type || !a.path) return false;
+                        if (a.type === 'not_null') {
+                          return true;
+                        }
+                        return 'value' in a;
+                      })
+                      .map((a) =>
+                        a.type === 'not_null' ? { type: 'not_null' as const, path: a.path } : a
+                      )
+                  : [],
+              }))
+            : [
+                {
+                  id: `tc_${file.suggestedSlug.replace(/-/g, '_')}_1`,
+                  name: 'Caso Sintético Padrão',
+                  input: { prompt: 'Gere uma resposta de teste válida seguindo o schema.' },
+                  assertions: [],
+                },
+              ];
 
         return {
           slug: file.suggestedSlug,
@@ -383,4 +386,3 @@ ${file.sourceCode.slice(0, 6000)}
     ],
   };
 }
-

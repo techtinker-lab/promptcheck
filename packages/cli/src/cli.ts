@@ -12,7 +12,9 @@ program
 
 program
   .command('init')
-  .description('Escaneia os prompts do código-fonte, gera os contratos automaticamente e provisiona o projeto')
+  .description(
+    'Escaneia os prompts do código-fonte, gera os contratos automaticamente e provisiona o projeto'
+  )
   .option('--lang <lang>', 'Idioma das mensagens e configurações (pt ou en)')
   .option('--force', 'Reescaneia o código e sobrescreve o promptcheck.yaml existente')
   .option('--api-url <url>', 'URL da API do PromptCheck Control Plane')
@@ -27,7 +29,9 @@ program
 
 program
   .command('scan')
-  .description('Reescaneia o repositório em busca de novos prompts no código e atualiza o promptcheck.yaml')
+  .description(
+    'Reescaneia o repositório em busca de novos prompts no código e atualiza o promptcheck.yaml'
+  )
   .option('--lang <lang>', 'Idioma das mensagens e configurações (pt ou en)')
   .option('--api-url <url>', 'URL da API do PromptCheck Control Plane')
   .action(async (options) => {

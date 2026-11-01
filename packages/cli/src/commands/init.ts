@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, parse, relative, resolve } from 'node:path';
 import type { CliBootstrapResponse } from '@promptcheck/shared';
 import pc from 'picocolors';
@@ -249,7 +249,9 @@ export async function runInit(options: InitCommandOptions): Promise<void> {
 
   // 2. Detecta se o Control Plane local (http://localhost:3333) está ativo
   let targetApiUrl =
-    options.apiUrl || process.env.PROMPTCHECK_API_URL || 'https://api.promptcheck.techtinker.com.br';
+    options.apiUrl ||
+    process.env.PROMPTCHECK_API_URL ||
+    'https://api.promptcheck.techtinker.com.br';
   let localServerActive = false;
 
   try {
@@ -409,7 +411,9 @@ export async function runInit(options: InitCommandOptions): Promise<void> {
   console.log(
     hasToken
       ? pc.green('  ✓ PROMPTCHECK_TOKEN configurado automaticamente')
-      : pc.yellow('  ⚠ PROMPTCHECK_TOKEN ausente (adicione no .env.local para sincronizar com o SaaS)')
+      : pc.yellow(
+          '  ⚠ PROMPTCHECK_TOKEN ausente (adicione no .env.local para sincronizar com o SaaS)'
+        )
   );
   console.log(
     hasOpenAiKey
@@ -417,5 +421,7 @@ export async function runInit(options: InitCommandOptions): Promise<void> {
       : pc.yellow('  ⚠ OPENAI_API_KEY ausente (adicione no .env.local antes de rodar os testes)')
   );
   console.log(pc.cyan('\n🚀 Para rodar os testes agora, execute:'));
-  console.log(`${pc.bold(pc.green('  promptcheck test'))}${pc.gray('  (ou: npm run promptcheck)\n')}`);
+  console.log(
+    `${pc.bold(pc.green('  promptcheck test'))}${pc.gray('  (ou: npm run promptcheck)\n')}`
+  );
 }

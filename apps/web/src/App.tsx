@@ -28,8 +28,7 @@ export function App() {
   const match = location.pathname.match(/^\/projects\/([^/]+)/);
   const currentProjectSlug = match && match[1] !== 'projects' ? match[1] : undefined;
 
-  const redirectAfterLogin =
-    (location.state as { from?: string } | null)?.from || '/projects';
+  const redirectAfterLogin = (location.state as { from?: string } | null)?.from || '/projects';
 
   const handleAuthSuccess = (authenticatedUser: User) => {
     queryClient.setQueryData(['me'], { user: authenticatedUser });
@@ -40,11 +39,7 @@ export function App() {
     user ? (
       element
     ) : (
-      <Navigate
-        to="/login"
-        replace
-        state={{ from: `${location.pathname}${location.search}` }}
-      />
+      <Navigate to="/login" replace state={{ from: `${location.pathname}${location.search}` }} />
     );
 
   const handleLogout = () => {
@@ -82,27 +77,15 @@ export function App() {
 
           <Route path="/projects" element={requireAuth(<ProjectsListPage />)} />
 
-          <Route
-            path="/projects/:slug/onboarding"
-            element={requireAuth(<ProjectOnboarding />)}
-          />
+          <Route path="/projects/:slug/onboarding" element={requireAuth(<ProjectOnboarding />)} />
 
-          <Route
-            path="/projects/:slug/contracts"
-            element={requireAuth(<ContractsPage />)}
-          />
+          <Route path="/projects/:slug/contracts" element={requireAuth(<ContractsPage />)} />
 
           <Route path="/projects/:slug/runs" element={requireAuth(<RunsListPage />)} />
 
-          <Route
-            path="/projects/:slug/runs/:runId"
-            element={requireAuth(<RunDetailPage />)}
-          />
+          <Route path="/projects/:slug/runs/:runId" element={requireAuth(<RunDetailPage />)} />
 
-          <Route
-            path="/projects/:slug/compare"
-            element={requireAuth(<CompareRunsPage />)}
-          />
+          <Route path="/projects/:slug/compare" element={requireAuth(<CompareRunsPage />)} />
 
           <Route path="/" element={<Navigate to={user ? '/projects' : '/login'} replace />} />
 
